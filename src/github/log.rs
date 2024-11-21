@@ -1,95 +1,87 @@
 #[macro_export]
-macro_rules! log_debug {
+macro_rules! debug {
     () => {
-        let t = GhaCommand {
-            cmd_type: CommandType::Msg {
+        println!("{}", crate::github::command::GhaCommand {
+            cmd_type: crate::github::command::CommandType::Msg {
                 msg: "".to_string(),
-                msg_type: MsgType::Debug,
+                msg_type: crate::github::command::MsgType::Debug,
             },
         }
-        println!(t);
+        .build());
     };
     ($($arg:tt)*) => {{
-        let m = format!($($arg)*);
-        let t = GhaCommand {
-            cmd_type: CommandType::Msg {
-                msg: m,
-                msg_type: MsgType::Debug,
+        println!("{}", crate::github::command::GhaCommand {
+            cmd_type: crate::github::command::CommandType::Msg {
+                msg: format!($($arg)*),
+                msg_type: crate::github::command::MsgType::Debug,
             },
         }
-        .build();
-        println!("{}", t);
+        .build());
     }};
 }
 
 #[macro_export]
-macro_rules! log_notice {
+macro_rules! notice {
     () => {
-        let t = GhaCommand {
-            cmd_type: CommandType::Msg {
+        println!("{}", crate::github::command::GhaCommand {
+            cmd_type: crate::github::command::CommandType::Msg {
                 msg: "".to_string(),
-                msg_type: MsgType::Notice { parameters: vec![] },
+                msg_type: crate::github::command::MsgType::Notice { parameters: vec![] },
             },
         }
-        println!(t);
+        .build());
     };
     ($($arg:tt)*) => {{
-        let m = format!($($arg)*);
-        let t = GhaCommand {
-            cmd_type: CommandType::Msg {
-                msg: m,
-                msg_type: MsgType::Notice { parameters: vec![] },
+        println!("{}", crate::github::command::GhaCommand {
+            cmd_type: crate::github::command::CommandType::Msg {
+                msg: format!($($arg)*),
+                msg_type: crate::github::command::MsgType::Notice { parameters: vec![] },
             },
         }
-        .build();
-        println!("{}", t);
+        .build());
     }};
 }
 
 #[macro_export]
-macro_rules! log_warn {
+macro_rules! warn {
     () => {
-        let t = GhaCommand {
-            cmd_type: CommandType::Msg {
+        println!("{}", crate::github::command::GhaCommand {
+            cmd_type: crate::github::command::CommandType::Msg {
                 msg: "".to_string(),
-                msg_type: MsgType::Warning { parameters: vec![] },
+                msg_type: crate::github::command::MsgType::Warning { parameters: vec![] },
             },
         }
-        println!(t);
+        .build());
     };
     ($($arg:tt)*) => {{
-        let m = format!($($arg)*);
-        let t = GhaCommand {
-            cmd_type: CommandType::Msg {
-                msg: m,
-                msg_type: MsgType::Warning { parameters: vec![] },
+        println!("{}", crate::github::command::GhaCommand {
+            cmd_type: crate::github::command::CommandType::Msg {
+                msg: format!($($arg)*),
+                msg_type: crate::github::command::MsgType::Warning { parameters: vec![] },
             },
         }
-        .build();
-        println!("{}", t);
+        .build());
     }};
 }
 
 #[macro_export]
-macro_rules! log_error {
+macro_rules! error {
     () => {
-        let t = GhaCommand {
-            cmd_type: CommandType::Msg {
+        println!("{}", crate::github::command::GhaCommand {
+            cmd_type: crate::github::command::CommandType::Msg {
                 msg: "".to_string(),
-                msg_type: MsgType::Error { parameters: vec![] },
+                msg_type: crate::github::command::MsgType::Error { parameters: vec![] },
             },
         }
-        println!(t);
+        .build());
     };
     ($($arg:tt)*) => {{
-        let m = format!($($arg)*);
-        let t = GhaCommand {
-            cmd_type: CommandType::Msg {
-                msg: m,
-                msg_type: MsgType::Error { parameters: vec![] },
+        println!("{}", crate::github::command::GhaCommand {
+            cmd_type: crate::github::command::CommandType::Msg {
+                msg: format!($($arg)*),
+                msg_type: crate::github::command::MsgType::Error { parameters: vec![] },
             },
         }
-        .build();
-        println!("{}", t);
+        .build());
     }};
 }

@@ -1,4 +1,3 @@
-mod command;
-mod log;
-
-pub use log::*;
+pub mod command;
+pub mod log;
+pub mod context;
