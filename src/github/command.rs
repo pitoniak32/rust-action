@@ -1,4 +1,7 @@
+#[tracing::instrument]
 pub fn get_input(name: &str) -> anyhow::Result<String> {
+
+    tracing::info!("the info mint!");
     let input = std::env::var(format!("INPUT_{}", name.to_uppercase()))?;
 
     Ok(input)
