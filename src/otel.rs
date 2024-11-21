@@ -4,17 +4,13 @@ use opentelemetry::{
     KeyValue,
 };
 use opentelemetry_otlp::{SpanExporter, WithExportConfig};
-use opentelemetry_sdk::{
-    runtime,
-    trace::{RandomIdGenerator, Sampler, Tracer},
-    Resource,
-};
+use opentelemetry_sdk::{runtime, Resource};
 use opentelemetry_semantic_conventions::{
     resource::{DEPLOYMENT_ENVIRONMENT_NAME, SERVICE_NAME, SERVICE_VERSION},
     SCHEMA_URL,
 };
 use tracing_opentelemetry::OpenTelemetryLayer;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
 pub const TRACER_NAME: &'static str = "rust-action";
 
@@ -30,35 +26,52 @@ fn resource() -> Resource {
     )
 }
 
-pub fn setup_tracing_subscriber() -> anyhow::Result<()> {
-    // let filter = if std::env::var("RUST_LOG").is_ok() {
-    //     EnvFilter::builder().from_env_lossy()
-    // } else {
-    //     "info"
-    //         .to_string()
-    //         .parse()
-    //         .expect("valid EnvFilter value can be parsed")
-    // };
+pub fn setup_tracing_subscriber() -> anyhow::Result<OtelGuard> {
+    let filter = if std::env::var("RUST_LOG").is_ok() {
+        EnvFilter::builder().from_env_lossy()
+    } else {
+        "info"
+            .to_string()
+            .parse()
+            .expect("valid EnvFilter value can be parsed")
+    };
 
-    // let exporter = SpanExporter::builder()
-    //     .with_tonic()
-    //     .with_endpoint("localhost:4317")
-    //     .build()?;
-    let exporter = opentelemetry_stdout::SpanExporter::default(); 
+    println!("Using filter: {}", filter);
+
     let tracer_provider = opentelemetry_sdk::trace::TracerProvider::builder()
-        .with_simple_exporter(exporter)
+        .with_batch_exporter(
+            SpanExporter::builder()
+                .with_tonic()
+                .with_endpoint("grpc://localhost:4317")
+                .build()?,
+            runtime::Tokio,
+        )
         .with_config(opentelemetry_sdk::trace::Config::default().with_resource(resource()))
         .build();
 
     global::set_tracer_provider(tracer_provider.clone());
 
-    let tracer = tracer_provider.tracer(TRACER_NAME);
+    tracing::subscriber::set_global_default(
+        tracing_subscriber::registry()
+            .with(filter) // Read global subscriber filter from `RUST_LOG`
+            .with(tracing_subscriber::fmt::layer())
+            .with(OpenTelemetryLayer::new(tracer_provider.tracer(TRACER_NAME))),
+    )
+    .unwrap();
 
-    tracing_subscriber::Registry::default()
-        // .with(filter)
-        .with(tracing_subscriber::fmt::layer()) // Setup logging layer
-        .with(OpenTelemetryLayer::new(tracer))
-        .init();
+    Ok(OtelGuard { tracer_provider })
+}
 
-    Ok(())
+pub struct OtelGuard {
+    tracer_provider: opentelemetry_sdk::trace::TracerProvider,
+}
+
+impl Drop for OtelGuard {
+    fn drop(&mut self) {
+        println!("flushing span processors!");
+        self.tracer_provider.force_flush();
+        println!("shutting down global tracer!");
+        opentelemetry::global::shutdown_tracer_provider();
+        println!("dropping otel guard!");
+    }
 }

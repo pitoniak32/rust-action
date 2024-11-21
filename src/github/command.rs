@@ -2,9 +2,9 @@
 pub fn get_input(name: &str) -> anyhow::Result<String> {
 
     tracing::info!("the info mint!");
-    let input = std::env::var(format!("INPUT_{}", name.to_uppercase()))?;
+    // let input = std::env::var(format!("INPUT_{}", name.to_uppercase()))?;
 
-    Ok(input)
+    Ok("".to_string())
 }
 
 pub fn get_input_warn(name: impl Into<String>, default: impl Into<String>) -> String {

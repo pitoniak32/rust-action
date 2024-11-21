@@ -5,7 +5,7 @@ services:
       - "16686:16686"
       - "4317"
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
+    image: otel/opentelemetry-collector-contrib:0.108.0
     command: ["--config=env:OTEL_COLLECTOR_CONFIG", "${OTELCOL_ARGS}"]
     ports:
       - "13133:13133" # health_check extension
@@ -35,4 +35,8 @@ services:
               receivers: [otlp]
               processors: []
               exporters: [debug, otlp/jaeger]
+            metrics:
+              receivers: [otlp]
+              processors: []
+              exporters: [debug]
 
