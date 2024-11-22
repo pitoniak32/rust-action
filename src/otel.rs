@@ -68,10 +68,8 @@ pub struct OtelGuard {
 
 impl Drop for OtelGuard {
     fn drop(&mut self) {
-        println!("flushing span processors!");
-        self.tracer_provider.force_flush();
-        println!("shutting down global tracer!");
-        opentelemetry::global::shutdown_tracer_provider();
-        println!("dropping otel guard!");
+        println!("Dropping OtelGuard!");
+        println!("Shutting down TracerProvider!");
+        self.tracer_provider.shutdown().expect("TracerProvider should shutdown properly");
     }
 }
